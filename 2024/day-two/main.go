@@ -28,17 +28,17 @@ func main() {
 		}
 
 		report = strings.TrimRight(report, "\n")
-		levels := strings.Split(report, " ")
+		l := strings.Split(report, " ")
 
-		valid := checkSequence(levels)
+		valid := checkLevels(l)
 
 		if !valid {
-			for i := 0; i < len(levels); i++ {
-				newLevels := make([]string, 0)
-				newLevels = append(newLevels, levels[:i]...)
-				newLevels = append(newLevels, levels[i+1:]...)
+			for i := 0; i < len(l); i++ {
+				nl := make([]string, 0)
+				nl = append(nl, l[:i]...)
+				nl = append(nl, l[i+1:]...)
 
-				if checkSequence(newLevels) {
+				if checkLevels(nl) {
 					valid = true
 					break
 				}
@@ -53,17 +53,17 @@ func main() {
 	logger.Printf("Total Safe Reports: %d\n", safeReports)
 }
 
-func checkSequence(levels []string) bool {
-	if len(levels) < 2 {
+func checkLevels(l []string) bool {
+	if len(l) < 2 {
 		return false
 	}
 
 	strictlyInc := false
 	strictlyDec := false
 
-	for idx := 0; idx < len(levels)-1; idx++ {
-		fl, err1 := strconv.Atoi(levels[idx])
-		sl, err2 := strconv.Atoi(levels[idx+1])
+	for idx := 0; idx < len(l)-1; idx++ {
+		fl, err1 := strconv.Atoi(l[idx])
+		sl, err2 := strconv.Atoi(l[idx+1])
 
 		if err1 != nil || err2 != nil {
 			return false
