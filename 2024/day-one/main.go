@@ -31,7 +31,7 @@ func main() {
 		num1, _ := strconv.Atoi(nums[0])
 		listA = append(listA, num1)
 
-		num2, err := strconv.Atoi(strings.Split(nums[1], "\n")[0])
+		num2, err := strconv.Atoi(strings.TrimRight(nums[1], "\n"))
 		listB = append(listB, num2)
 
 	}
