@@ -16,15 +16,9 @@ func main() {
 	if err != nil {
 		logger.Fatalf("An error occurred opening the file %v", err)
 	}
+	defer f.Close()
 
 	r := bufio.NewReader(f)
-
-	/**
-	read the lines one by one
-	for each line check if the numbers are all increasing or all decreasing
-	and check if the difference between adjacent levels are at least 1 or at most 3
-	increment he count of safe reports
-	*/
 
 	var safeReports int
 	for {
@@ -34,42 +28,64 @@ func main() {
 		}
 
 		report = strings.TrimRight(report, "\n")
-
 		levels := strings.Split(report, " ")
 
-		meetsAdjCondition := false
-		strictlyInc := false
-		strictlyDec := false
-		for idx := 0; idx < len(levels)-1; idx++ {
-			fl, _ := strconv.Atoi(levels[idx])
-			sl, _ := strconv.Atoi(levels[idx+1])
+		valid := checkSequence(levels)
 
-			// check if the numbers are strictly increasing
-			// or if they are strictly decreasing
-			// if either one, don't do the other,
-			// if one fails, check the other
+		if !valid {
+			for i := 0; i < len(levels); i++ {
+				newLevels := make([]string, 0)
+				newLevels = append(newLevels, levels[:i]...)
+				newLevels = append(newLevels, levels[i+1:]...)
 
-			if fl > sl {
-				strictlyInc = true
-			} else if fl < sl {
-				strictlyDec = true
+				if checkSequence(newLevels) {
+					valid = true
+					break
+				}
 			}
-
-			// check the difference between adjacent neighbors
-			nd := math.Abs(float64(fl - sl))
-			if nd >= 1 && nd <= 3 {
-				meetsAdjCondition = true
-			} else {
-				meetsAdjCondition = false
-				break
-			}
-
 		}
 
-		if meetsAdjCondition && (!(strictlyInc && strictlyDec)) {
-			safeReports += 1
+		if valid {
+			safeReports++
 		}
-
-		logger.Println(levels, safeReports)
 	}
+
+	logger.Printf("Total Safe Reports: %d\n", safeReports)
+}
+
+func checkSequence(levels []string) bool {
+	if len(levels) < 2 {
+		return false
+	}
+
+	strictlyInc := false
+	strictlyDec := false
+
+	for idx := 0; idx < len(levels)-1; idx++ {
+		fl, err1 := strconv.Atoi(levels[idx])
+		sl, err2 := strconv.Atoi(levels[idx+1])
+
+		if err1 != nil || err2 != nil {
+			return false
+		}
+
+		if fl > sl {
+			if strictlyDec {
+				return false
+			}
+			strictlyInc = true
+		} else if fl < sl {
+			if strictlyInc {
+				return false
+			}
+			strictlyDec = true
+		}
+
+		nd := math.Abs(float64(fl - sl))
+		if nd < 1 || nd > 3 {
+			return false
+		}
+	}
+
+	return !(strictlyInc && strictlyDec)
 }
